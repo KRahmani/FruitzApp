@@ -2,16 +2,26 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum GameState
+{
+    wait,
+    move
+}
+
 public class Board : MonoBehaviour
 {
+    public GameState currentState = GameState.move;
     public int width, height;
+    public int offset;//sert à avoir un effet glissant lorsque les fruits tombent
     public GameObject tilePrefab;
     private BackgroundTile[,] allTiles;
     public GameObject[] dots;
     public GameObject[,] allDots;
+    private FindMatches findMatches;
 
     void Start()
     {
+        findMatches = FindObjectOfType<FindMatches>();
         allTiles = new BackgroundTile[width, height];
         allDots = new GameObject[width, height];
         SetUp();
@@ -23,7 +33,7 @@ public class Board : MonoBehaviour
         for (int i = 0; i < width; i++)
             for (int j = 0; j < height; j++)
             {
-                Vector2 tempPosition = new Vector2(i, j);
+                Vector2 tempPosition = new Vector2(i, j + offset);
                 GameObject backgroundTile=Instantiate(tilePrefab, tempPosition, Quaternion.identity) as GameObject;
                 backgroundTile.transform.parent = this.transform;
                 backgroundTile.name = "( " + i + ", " + j + " )";
@@ -34,10 +44,13 @@ public class Board : MonoBehaviour
                 {
                     dotToUse = Random.Range(0, dots.Length);
                     maxIterations++;
+                    Debug.Log(maxIterations);
                 }
-
+                maxIterations = 0;
 
                 GameObject dot = Instantiate(dots[dotToUse], tempPosition, Quaternion.identity);
+                dot.GetComponent<Dot>().row = j;
+                dot.GetComponent<Dot>().column = i;
                 dot.transform.parent = this.transform;
                 dot.name = "( " + i + ", " + j + " )";
                 allDots[i, j] = dot;
@@ -70,6 +83,8 @@ public class Board : MonoBehaviour
     {
         if (allDots[column, row].GetComponent<Dot>().isMatched)
         {
+            //supprimer la dot de la liste des matchs avant de la détruire (détruire l'objet)
+            findMatches.currentMatches.Remove(allDots[column, row]);
             Destroy(allDots[column, row]);
             allDots[column, row] = null;
         }
@@ -118,11 +133,14 @@ public class Board : MonoBehaviour
             {
                 if (allDots[i, j] == null)
                 {
-                    Vector2 tempPosition = new Vector2(i, j);
+                    Vector2 tempPosition = new Vector2(i, j + offset);
                     int dotToUse = Random.Range(0, dots.Length);
                     //créer une nouvelle pièce sur la place vide
                     GameObject piece = Instantiate(dots[dotToUse], tempPosition, Quaternion.identity);
                     allDots[i, j] = piece;
+                    piece.GetComponent<Dot>().row = j;
+                    piece.GetComponent<Dot>().column = i;
+
                 }
             }
     }
@@ -148,5 +166,7 @@ public class Board : MonoBehaviour
             yield return new WaitForSeconds(.5f);
             DistroyMatches(); //on élimine les piéces qui créent  des nouveaux matchs 
         }
+        yield return new WaitForSeconds(.5f);
+        currentState = GameState.move;
     }
 }
