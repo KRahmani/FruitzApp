@@ -14,8 +14,9 @@ public class Board : MonoBehaviour
     public int width, height;
     public int offset;//sert à avoir un effet glissant lorsque les fruits tombent
     public GameObject tilePrefab;
-    private BackgroundTile[,] allTiles;
     public GameObject[] dots;
+    public GameObject destroyEffect;
+    private BackgroundTile[,] allTiles;
     public GameObject[,] allDots;
     private FindMatches findMatches;
 
@@ -85,6 +86,10 @@ public class Board : MonoBehaviour
         {
             //supprimer la dot de la liste des matchs avant de la détruire (détruire l'objet)
             findMatches.currentMatches.Remove(allDots[column, row]);
+            //créer animation de destruction
+            GameObject particle=Instantiate(destroyEffect, allDots[column, row].transform.position, Quaternion.identity);
+            //détruire l'objet après un certain temps pour ne pas occuper de la mémoire
+            Destroy(particle, .5f);
             Destroy(allDots[column, row]);
             allDots[column, row] = null;
         }
