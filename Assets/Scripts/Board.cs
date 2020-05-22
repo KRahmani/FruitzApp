@@ -18,6 +18,7 @@ public class Board : MonoBehaviour
     public GameObject destroyEffect;
     private BackgroundTile[,] allTiles;
     public GameObject[,] allDots;
+    public Dot currentDot;
     private FindMatches findMatches;
 
     void Start()
@@ -84,8 +85,12 @@ public class Board : MonoBehaviour
     {
         if (allDots[column, row].GetComponent<Dot>().isMatched)
         {
-            //supprimer la dot de la liste des matchs avant de la détruire (détruire l'objet)
-            findMatches.currentMatches.Remove(allDots[column, row]);
+            //Vérifier combien de pièces construisant le match
+            if(findMatches.currentMatches.Count == 4 || findMatches.currentMatches.Count == 7)
+            {
+                findMatches.CheckBombs();
+            }
+
             //créer animation de destruction
             GameObject particle=Instantiate(destroyEffect, allDots[column, row].transform.position, Quaternion.identity);
             //détruire l'objet après un certain temps pour ne pas occuper de la mémoire
@@ -107,7 +112,9 @@ public class Board : MonoBehaviour
                     DistroyMatchesAt(i, j);
                 }
             }
+        findMatches.currentMatches.Clear();
         StartCoroutine(DecreaseRowco()); // après avoir dtruit les pièces du match, on fait les pièces restantes descendre
+        
     }
 
     private IEnumerator DecreaseRowco() //pour faire les pièces descendre quand il y a des matchs
@@ -171,6 +178,8 @@ public class Board : MonoBehaviour
             yield return new WaitForSeconds(.5f);
             DistroyMatches(); //on élimine les piéces qui créent  des nouveaux matchs 
         }
+        findMatches.currentMatches.Clear();
+        currentDot = null;
         yield return new WaitForSeconds(.5f);
         currentState = GameState.move;
     }

@@ -21,6 +21,62 @@ public class FindMatches : MonoBehaviour
         StartCoroutine(FindAllMatchesCo());
     }
 
+    private List<GameObject> IsRowBomb(Dot dot1, Dot dot2, Dot dot3)
+    {
+        List<GameObject> currentDots = new List<GameObject>();
+        if (dot1.isRowBomb)
+        {
+            currentMatches.Union(GetRowPieces(dot1.row));
+        }
+
+        if (dot2.isRowBomb)
+        {
+            currentMatches.Union(GetRowPieces(dot2.row));
+        }
+
+        if (dot3.isRowBomb)
+        {
+            currentMatches.Union(GetRowPieces(dot3.row));
+        }
+        return currentDots;
+    }
+
+    private List<GameObject> IsColumnBomb(Dot dot1, Dot dot2, Dot dot3)
+    {
+        List<GameObject> currentDots = new List<GameObject>();
+        if (dot1.isColumnBomb)
+        {
+            currentMatches.Union(GetColumnPieces(dot1.column));
+        }
+
+        if (dot2.isColumnBomb)
+        {
+            currentMatches.Union(GetColumnPieces(dot2.column));
+        }
+
+        if (dot3.isColumnBomb)
+        {
+            currentMatches.Union(GetColumnPieces(dot3.column));
+        }
+        return currentDots;
+    }
+
+    private void AddToListAndMatch(GameObject dot)
+    {
+        if (!currentMatches.Contains(dot))
+        {
+            currentMatches.Add(dot);
+        }
+        dot.GetComponent<Dot>().isMatched = true;
+    }
+
+    private void GetNearbyPieces(GameObject dot1, GameObject dot2, GameObject dot3)
+    {
+        AddToListAndMatch(dot1);
+        AddToListAndMatch(dot2);
+        AddToListAndMatch(dot3);
+    }
+
     private IEnumerator FindAllMatchesCo()
     {
         yield return new WaitForSeconds(.2f);
@@ -29,57 +85,34 @@ public class FindMatches : MonoBehaviour
             for(int j = 0; j < board.height; j++)
             {
                 GameObject currentDot = board.allDots[i, j];
+                
                 if(currentDot != null) // on vérifie si la dot existe
                 {
+                    Dot currentDotDot = currentDot.GetComponent<Dot>();
                     //chercher des Matchs Horizontalement
-                    if(i > 0 && i < board.width - 1) //on vérifie si sa position fait partie du board
+                    if (i > 0 && i < board.width - 1) //on vérifie si sa position fait partie du board
                     {
                         //on crée deux GO qui stockent les dot à gauche et à droite du dot courant
                         GameObject leftDot = board.allDots[i - 1, j];
                         GameObject rightDot = board.allDots[i + 1, j];
-
-                        if(leftDot != null && rightDot != null) // on vérifie s'ils existent
+                        if (leftDot != null && rightDot != null)
                         {
-                            if(leftDot.tag == currentDot.tag && rightDot.tag == currentDot.tag) //on verifie s'ils ont les mêmes tags avec le dot courant (ie que les trois sont les mêmes)
+                            Dot rightDotDot = rightDot.GetComponent<Dot>();
+                            Dot leftDotDot = leftDot.GetComponent<Dot>();
+
+                            if (leftDot != null && rightDot != null) // on vérifie s'ils existent
                             {
-                                //on vérifié si on trouve une bombe horizontale (de ligne)
-                                if(currentDot.GetComponent<Dot>().isRowBomb ||
-                                    leftDot.GetComponent<Dot>().isRowBomb ||
-                                    rightDot.GetComponent<Dot>().isRowBomb)
+                                if (leftDot.tag == currentDot.tag && rightDot.tag == currentDot.tag) //on verifie s'ils ont les mêmes tags avec le dot courant (ie que les trois sont les mêmes)
                                 {
-                                    currentMatches.Union(GetRowPieces(j));// on récupère la ligne si c'est le cas
-                                }
+                                    //on vérifié si on trouve une bombe horizontale (de ligne)
+                                    currentMatches.Union(IsRowBomb(leftDotDot, currentDotDot, rightDotDot));
 
-                                //on vérifié si on trouve une bombe verticale (de colonne)
-                                if (currentDot.GetComponent<Dot>().isColumnBomb)
-                                    currentMatches.Union(GetColumnPieces(i));// on récupère la colonne si c'est le cas
-                                if (leftDot.GetComponent<Dot>().isColumnBomb)
-                                    currentMatches.Union(GetColumnPieces(i-1));
-                                if (rightDot.GetComponent<Dot>().isColumnBomb)
-                                    currentMatches.Union(GetColumnPieces(i+1));
+                                    //on vérifié si on trouve une bombe verticale (de colonne)
+                                    currentMatches.Union(IsColumnBomb(leftDotDot, currentDotDot, rightDotDot));
 
+                                    GetNearbyPieces(leftDot, currentDot, rightDot);
 
-
-                                if (!currentMatches.Contains(leftDot))
-                                {
-                                    currentMatches.Add(leftDot);
                                 }
-                                //on ajoute à la liste des Matchs et on indique que ces trois Dots consécutifs Match (sont pareil)
-                                if (!currentMatches.Contains(leftDot))
-                                {
-                                    currentMatches.Add(leftDot);
-                                }
-                                leftDot.GetComponent<Dot>().isMatched = true;
-                                if (!currentMatches.Contains(rightDot))
-                                {
-                                    currentMatches.Add(rightDot);
-                                }
-                                rightDot.GetComponent<Dot>().isMatched = true;
-                                if (!currentMatches.Contains(currentDot))
-                                {
-                                    currentMatches.Add(currentDot);
-                                }
-                                currentDot.GetComponent<Dot>().isMatched = true;
                             }
                         }
                     }
@@ -89,44 +122,24 @@ public class FindMatches : MonoBehaviour
                     {
                         //on crée deux GO qui stockent les dot à gauche et à droite du dot courant
                         GameObject upDot = board.allDots[i, j + 1];
+                       
                         GameObject downDot = board.allDots[i, j - 1];
-
-                        if (upDot != null && downDot != null) // on vérifie s'ils existent
+                        if (upDot != null && downDot != null)
                         {
-                            if (upDot.tag == currentDot.tag && downDot.tag == currentDot.tag) //on verifie s'ils ont les mêmes tags avec le dot courant (ie que les trois sont les mêmes)
+                            Dot downDotDot = downDot.GetComponent<Dot>();
+                            Dot upDotDot = upDot.GetComponent<Dot>();
+
+                            if (upDot != null && downDot != null) // on vérifie s'ils existent
                             {
-                                //on vérifié si on trouve une bombe verticale (de colonne)
-                                if (currentDot.GetComponent<Dot>().isColumnBomb ||
-                                    upDot.GetComponent<Dot>().isColumnBomb ||
-                                    downDot.GetComponent<Dot>().isColumnBomb)
+                                if (upDot.tag == currentDot.tag && downDot.tag == currentDot.tag) //on verifie s'ils ont les mêmes tags avec le dot courant (ie que les trois sont les mêmes)
                                 {
-                                    currentMatches.Union(GetColumnPieces(i));// on récupère la colonne si c'est le cas
+                                    //on vérifié si on trouve une bombe verticale (de colonne)
+                                    currentMatches.Union(IsColumnBomb(upDotDot, currentDotDot, downDotDot));
+                                    //on vérifié si on trouve une bombe horizontale (de ligne)
+                                    currentMatches.Union(IsRowBomb(upDotDot, currentDotDot, downDotDot));
+                                    //on ajoute à la liste des matchs et on indique que ces trois Dots consécutifs Match (sont pareil)
+                                    GetNearbyPieces(upDot, currentDot, downDot);
                                 }
-                                //on vérifié si on trouve une bombe horizontale (de ligne)
-                                if (currentDot.GetComponent<Dot>().isRowBomb)
-                                    currentMatches.Union(GetRowPieces(j));// on récupère la ligne si c'est le cas
-                                if (upDot.GetComponent<Dot>().isRowBomb)
-                                    currentMatches.Union(GetRowPieces(j + 1));
-                                if (downDot.GetComponent<Dot>().isRowBomb)
-                                    currentMatches.Union(GetRowPieces(j - 1));
-
-
-                                //on ajoute à la liste des matchs et on indique que ces trois Dots consécutifs Match (sont pareil)
-                                if (!currentMatches.Contains(upDot))
-                                {
-                                    currentMatches.Add(upDot);
-                                }
-                                upDot.GetComponent<Dot>().isMatched = true;
-                                if (!currentMatches.Contains(downDot))
-                                {
-                                    currentMatches.Add(downDot);
-                                }
-                                downDot.GetComponent<Dot>().isMatched = true;
-                                if (!currentMatches.Contains(currentDot))
-                                {
-                                    currentMatches.Add(currentDot);
-                                }
-                                currentDot.GetComponent<Dot>().isMatched = true;
                             }
                         }
                     }
@@ -134,6 +147,26 @@ public class FindMatches : MonoBehaviour
             }
         }
     }
+
+    public void MatchPiecesOfColor(string color)
+    {
+        for(int i = 0; i < board.width; i++)
+        {
+            for(int j = 0; j < board.height; j++)
+            {
+                //si la pièce existe das notre board
+                if(board.allDots[i,j] != null)
+                {
+                    //si le tag de la pièce est le même que celui passé en paramètre
+                    if(board.allDots[i,j].tag == color)
+                    {
+                        board.allDots[i, j].GetComponent<Dot>().isMatched = true;
+                    }
+                }
+            }
+        }
+    }
+
 
     //Récuperer les pièces d'une colonne donnée  
     List<GameObject> GetColumnPieces(int column)
@@ -163,5 +196,71 @@ public class FindMatches : MonoBehaviour
             }
         }
         return dots;
+    }
+    //Vérifie si on doit générer une bomb
+    public void CheckBombs()
+    {
+        //si le joueur est entrain de déplacer une pièce
+        if(board.currentDot != null)
+        {
+            //est ce que la pièce qu'il déplace constitue un match
+            if (board.currentDot.isMatched)
+            {
+                board.currentDot.isMatched = false;
+                //quelle type de bomb générer
+                /*int typeOfBomb = Random.Range(0, 100);
+                if(typeOfBomb < 50)
+                {
+                    //créer une bomb pour ligne
+                    board.currentDot.MakeRowBomb();
+                }
+                else if(typeOfBomb >= 50)
+                {
+                    //créer une bomb pour colonne
+                    board.currentDot.MakeColumnBomb();
+                }*/
+                if((board.currentDot.swipeAngle > -45 && board.currentDot.swipeAngle <= 45) ||
+                    (board.currentDot.swipeAngle < -135 || board.currentDot.swipeAngle >= 135))
+                {
+                    board.currentDot.MakeRowBomb();
+                }
+                else
+                {
+                    board.currentDot.MakeColumnBomb();
+                }
+            }
+            //si l'autre Dot match
+            else if (board.currentDot.otherDot != null)
+            {
+                Dot otherDot = board.currentDot.otherDot.GetComponent<Dot>();
+                if (otherDot.isMatched)
+                {
+                    otherDot.isMatched = false;
+                    //quelle type de bomb générer
+                    /*int typeOfBomb = Random.Range(0, 100);
+                    if (typeOfBomb < 50)
+                    {
+                        //créer une bomb pour ligne
+                        otherDot.MakeRowBomb();
+                    }
+                    else if (typeOfBomb >= 50)
+                    {
+                        //créer une bomb pour colonne
+                        otherDot.MakeColumnBomb();
+                    }*/
+                    if ((board.currentDot.swipeAngle > -45 && board.currentDot.swipeAngle <= 45) ||
+                      (board.currentDot.swipeAngle < -135 || board.currentDot.swipeAngle >= 135))
+                    {
+                        otherDot.MakeRowBomb();
+                    }
+                    else
+                    {
+                        otherDot.MakeColumnBomb();
+                    }
+
+                }
+            }
+        }
+
     }
 }
