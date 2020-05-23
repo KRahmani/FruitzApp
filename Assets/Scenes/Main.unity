@@ -167,6 +167,7 @@ GameObject:
   - component: {fileID: 519420032}
   - component: {fileID: 519420031}
   - component: {fileID: 519420029}
+  - component: {fileID: 519420030}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -182,6 +183,21 @@ AudioListener:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
   m_Enabled: 1
+--- !u!114 &519420030
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 519420028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6a06b75920f25cc498e827d94e62e884, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cameraOffset: -10
+  aspectRtio: 0.625
+  padding: 2
 --- !u!20 &519420031
 Camera:
   m_ObjectHideFlags: 0
@@ -268,10 +284,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentState: 1
-  width: 7
-  height: 10
-  offset: 20
+  width: 5
+  height: 5
+  offset: 10
   tilePrefab: {fileID: 4695313746935172847, guid: 7dd35cb4d4694114885064bf4155b5a8,
+    type: 3}
+  breakableTilePrefab: {fileID: 1599926512047010793, guid: 8a5418f488bb5dd4d937d216a0dbcc67,
     type: 3}
   dots:
   - {fileID: 7753352141077015975, guid: 4a4841c21ff65504a9fb069b80c6072d, type: 3}
@@ -284,6 +302,7 @@ MonoBehaviour:
   - {fileID: 5635968837646629886, guid: 0bd7d189a2555534c9bfa62639b42cfa, type: 3}
   destroyEffect: {fileID: 4830390804976431879, guid: 0ae288ae242f31e488d02d04cd8fc2ed,
     type: 3}
+  boardLayout: []
   currentDot: {fileID: 0}
 --- !u!4 &931613892
 Transform:
