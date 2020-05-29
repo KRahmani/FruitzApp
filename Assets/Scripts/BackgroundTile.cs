@@ -36,6 +36,6 @@ public class BackgroundTile : MonoBehaviour
         float newAlpha = color.a * .5f;
         sprite.color = new Color(color.r, color.g, color.b, newAlpha);
     }
-    
+
 
 }

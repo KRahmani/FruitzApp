@@ -13,7 +13,7 @@ public class Dot : MonoBehaviour
     public int targetX;
     public int targetY;
 
-
+    private HintManager hintManager;
     private FindMatches findMatches;
     private Vector2 firstTouchPosition;
     private Vector2 finalTouchPosition;
@@ -44,7 +44,7 @@ public class Dot : MonoBehaviour
         isColorBomb = false;
         isAdjacentBomb = false;
 
-
+        hintManager = FindObjectOfType<HintManager>();
         board = FindObjectOfType<Board>();
         findMatches = FindObjectOfType<FindMatches>();
         //targetX = (int)transform.position.x;
@@ -83,7 +83,7 @@ public class Dot : MonoBehaviour
 
         targetX = column;
         targetY = row;
-        if(Mathf.Abs(targetX - transform.position.x) > .1)
+        if (Mathf.Abs(targetX - transform.position.x) > .1)
         {
             //déplacer vers la position cible
             tempPosition = new Vector2(targetX, transform.position.y);
@@ -135,10 +135,10 @@ public class Dot : MonoBehaviour
             otherDot.GetComponent<Dot>().isMatched = true;
         }
         yield return new WaitForSeconds(.5f);
-        if(otherDot != null)
+        if (otherDot != null)
         {
             //Si les deux dot qu'on veut échanger ne forme pas trois mêmes dots consécutives, on les remets à leurs places (on ne les échange pas)
-            if(!isMatched && !otherDot.GetComponent<Dot>().isMatched)
+            if (!isMatched && !otherDot.GetComponent<Dot>().isMatched)
             {
                 otherDot.GetComponent<Dot>().row = row;
                 otherDot.GetComponent<Dot>().column = column;
@@ -151,17 +151,22 @@ public class Dot : MonoBehaviour
             else
             {
                 board.DistroyMatches();
-                
+
             }
-            
+
             //otherDot = null;
         }
- 
+
     }
 
     //la position du premier clique (quand on clique sur la souris)
     private void OnMouseDown()
     {
+        //détruire le hint après l'avoir utilisé (en cliquant sur le dot en question)
+        if (hintManager != null)
+        {
+            hintManager.DestroyHint();
+        }
         //on ne sauvegarde la première position que si le jeu est en état move(la souris est entrai de bouger)
         if (board.currentState == GameState.move)
         {
@@ -177,31 +182,31 @@ public class Dot : MonoBehaviour
             finalTouchPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             CalculateAngle();
         }
-        
-          
+
+
     }
 
     //calcler l'angle entre la position du premier clique et celle du dernier clique 
     void CalculateAngle()
     {
-        if(Mathf.Abs(finalTouchPosition.y-firstTouchPosition.y)>swipeResist ||
+        if (Mathf.Abs(finalTouchPosition.y - firstTouchPosition.y) > swipeResist ||
             Mathf.Abs(finalTouchPosition.x - firstTouchPosition.x) > swipeResist)
         {
             board.currentState = GameState.wait;
             swipeAngle = Mathf.Atan2(finalTouchPosition.y - firstTouchPosition.y, finalTouchPosition.x - firstTouchPosition.x) * 180 / Mathf.PI;
             MovePieces();
-           
+
             board.currentDot = this;
         }
         else
         {
             board.currentState = GameState.move;
-          
+
         }
     }
     void MovePiecesActual(Vector2 direction)
     {
-        otherDot = board.allDots[column+ (int)direction.x, row + (int)direction.y];
+        otherDot = board.allDots[column + (int)direction.x, row + (int)direction.y];
         previousRow = row;
         previousColumn = column;
         if (otherDot != null)
@@ -276,20 +281,20 @@ public class Dot : MonoBehaviour
         {
             board.currentState = GameState.move;
         }
-        
-        
+
+
     }
 
     //cherche si trois "Dot" consécutives sont les mêmes (ie ont la même couleur)
     void FindMatches()
     {
         //horizontalement
-        if(column > 0 && column < board.width - 1)
+        if (column > 0 && column < board.width - 1)
         {
             GameObject leftDot1 = board.allDots[column - 1, row];
             GameObject rightDot1 = board.allDots[column + 1, row];
-            if(leftDot1!=null && rightDot1!=null)
-                if(leftDot1.tag == this.gameObject.tag && rightDot1.tag == this.gameObject.tag)
+            if (leftDot1 != null && rightDot1 != null)
+                if (leftDot1.tag == this.gameObject.tag && rightDot1.tag == this.gameObject.tag)
                 {
                     leftDot1.GetComponent<Dot>().isMatched = true;
                     rightDot1.GetComponent<Dot>().isMatched = true;
@@ -299,9 +304,9 @@ public class Dot : MonoBehaviour
         //Verticalement
         if (row > 0 && row < board.height - 1)
         {
-            GameObject upDot1 = board.allDots[column , row+1];
-            GameObject downDot1 = board.allDots[column, row-1];
-            if(upDot1 != null && downDot1 != null)
+            GameObject upDot1 = board.allDots[column, row + 1];
+            GameObject downDot1 = board.allDots[column, row - 1];
+            if (upDot1 != null && downDot1 != null)
                 if (upDot1.tag == this.gameObject.tag && downDot1.tag == this.gameObject.tag)
                 {
                     upDot1.GetComponent<Dot>().isMatched = true;
@@ -330,6 +335,7 @@ public class Dot : MonoBehaviour
         isColorBomb = true;
         GameObject color = Instantiate(colorBomb, transform.position, Quaternion.identity);
         color.transform.parent = this.transform;
+        this.gameObject.tag = "Color";
     }
 
     public void MakeAdjacentBomb()

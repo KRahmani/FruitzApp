@@ -100,13 +100,13 @@ public class FindMatches : MonoBehaviour
     private IEnumerator FindAllMatchesCo()
     {
         yield return new WaitForSeconds(.2f);
-        for(int i = 0; i < board.width; i++)
+        for (int i = 0; i < board.width; i++)
         {
-            for(int j = 0; j < board.height; j++)
+            for (int j = 0; j < board.height; j++)
             {
                 GameObject currentDot = board.allDots[i, j];
-                
-                if(currentDot != null) // on vérifie si la dot existe
+
+                if (currentDot != null) // on vérifie si la dot existe
                 {
                     Dot currentDotDot = currentDot.GetComponent<Dot>();
                     //chercher des Matchs Horizontalement
@@ -173,15 +173,15 @@ public class FindMatches : MonoBehaviour
 
     public void MatchPiecesOfColor(string color)
     {
-        for(int i = 0; i < board.width; i++)
+        for (int i = 0; i < board.width; i++)
         {
-            for(int j = 0; j < board.height; j++)
+            for (int j = 0; j < board.height; j++)
             {
                 //si la pièce existe das notre board
-                if(board.allDots[i,j] != null)
+                if (board.allDots[i, j] != null)
                 {
                     //si le tag de la pièce est le même que celui passé en paramètre
-                    if(board.allDots[i,j].tag == color)
+                    if (board.allDots[i, j].tag == color)
                     {
                         board.allDots[i, j].GetComponent<Dot>().isMatched = true;
                     }
@@ -200,8 +200,12 @@ public class FindMatches : MonoBehaviour
                 //vérifier que les pièces sont dans le board
                 if (i >= 0 && i < board.width && j >= 0 && j < board.height)
                 {
-                    dots.Add(board.allDots[i, j]);
-                    board.allDots[i, j].GetComponent<Dot>().isMatched = true;
+                    if(board.allDots[i,j] != null)
+                    {
+                        dots.Add(board.allDots[i, j]);
+                        board.allDots[i, j].GetComponent<Dot>().isMatched = true;
+                    }
+                   
                 }
             }
         }
@@ -213,12 +217,17 @@ public class FindMatches : MonoBehaviour
     List<GameObject> GetColumnPieces(int column)
     {
         List<GameObject> dots = new List<GameObject>();
-        for(int i = 0; i < board.height; i++)
+        for (int i = 0; i < board.height; i++)
         {
             if (board.allDots[column, i] != null)
             {
+                Dot dot = board.allDots[column, i].GetComponent<Dot>();
+                if (dot.isRowBomb)
+                {
+                    dots.Union(GetRowPieces(i)).ToList();
+                }
                 dots.Add(board.allDots[column, i]);
-                board.allDots[column, i].GetComponent<Dot>().isMatched = true;
+                dot.isMatched = true;
             }
         }
         return dots;
@@ -232,8 +241,13 @@ public class FindMatches : MonoBehaviour
         {
             if (board.allDots[i, row] != null)
             {
+                Dot dot = board.allDots[i, row].GetComponent<Dot>();
+                if (dot.isColumnBomb)
+                {
+                    dots.Union(GetColumnPieces(i)).ToList();
+                }
                 dots.Add(board.allDots[i, row]);
-                board.allDots[i, row].GetComponent<Dot>().isMatched = true;
+                dot.isMatched = true;
             }
         }
         return dots;
@@ -242,7 +256,7 @@ public class FindMatches : MonoBehaviour
     public void CheckBombs()
     {
         //si le joueur est entrain de déplacer une pièce
-        if(board.currentDot != null)
+        if (board.currentDot != null)
         {
             //est ce que la pièce qu'il déplace constitue un match
             if (board.currentDot.isMatched)
@@ -260,7 +274,7 @@ public class FindMatches : MonoBehaviour
                     //créer une bomb pour colonne
                     board.currentDot.MakeColumnBomb();
                 }*/
-                if((board.currentDot.swipeAngle > -45 && board.currentDot.swipeAngle <= 45) ||
+                if ((board.currentDot.swipeAngle > -45 && board.currentDot.swipeAngle <= 45) ||
                     (board.currentDot.swipeAngle < -135 || board.currentDot.swipeAngle >= 135))
                 {
                     board.currentDot.MakeRowBomb();

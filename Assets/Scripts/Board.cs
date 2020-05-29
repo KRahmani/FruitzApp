@@ -42,9 +42,17 @@ public class Board : MonoBehaviour
     public GameObject[,] allDots;
     public Dot currentDot;
     private FindMatches findMatches;
+    public int basePieceValue = 20;
+    public int streakValue = 1;
+    private ScoreManager scoreManager;
+    private SoundManager soundManager;
+    public float refillDelay = 0.5f;
+    public int[] scoreGoals;
 
     void Start()
     {
+        soundManager = FindObjectOfType<SoundManager>();
+        scoreManager = FindObjectOfType<ScoreManager>();
         breakableTiles = new BackgroundTile[width, height];
         findMatches = FindObjectOfType<FindMatches>();
         blankSpaces = new bool[width, height];
@@ -55,7 +63,7 @@ public class Board : MonoBehaviour
     //pour stocker toutes les positions où il doit y avoir de l'éspace libre
     public void GenerateBlankSpaces()
     {
-        for(int i = 0; i < boardLayout.Length; i++)
+        for (int i = 0; i < boardLayout.Length; i++)
         {
             if (boardLayout[i].tileKind == TileKind.Blank)
             {
@@ -93,7 +101,8 @@ public class Board : MonoBehaviour
                 if (!blankSpaces[i, j]) // s'il ne doit pas y avoir de l'espce libre, alors on crée la piéce
                 {
                     Vector2 tempPosition = new Vector2(i, j + offset);
-                    GameObject backgroundTile = Instantiate(tilePrefab, tempPosition, Quaternion.identity) as GameObject;
+                    Vector2 tilePosition = new Vector2(i, j);
+                    GameObject backgroundTile = Instantiate(tilePrefab, tilePosition, Quaternion.identity) as GameObject;
                     backgroundTile.transform.parent = this.transform;
                     backgroundTile.name = "( " + i + ", " + j + " )";
                     int dotToUse = Random.Range(0, dots.Length);
@@ -118,23 +127,23 @@ public class Board : MonoBehaviour
 
     }
 
-    private bool MatchesAt(int column, int row, GameObject piece) 
+    private bool MatchesAt(int column, int row, GameObject piece)
     {
-        if(column>1 && row > 1)
+        if (column > 1 && row > 1)
         {
-            if(allDots[column-1,row]!=null && allDots[column - 2, row] != null)
+            if (allDots[column - 1, row] != null && allDots[column - 2, row] != null)
             {
                 if (allDots[column - 1, row].tag == piece.tag &&
                     allDots[column - 2, row].tag == piece.tag) return true;
             }
-            if (allDots[column, row-1] != null && allDots[column, row-2] != null)
+            if (allDots[column, row - 1] != null && allDots[column, row - 2] != null)
             {
                 if (allDots[column, row - 1].tag == piece.tag &&
                     allDots[column, row - 2].tag == piece.tag) return true;
             }
 
         }
-        else if(column<=1 || row <= 1)
+        else if (column <= 1 || row <= 1)
         {
             if (row > 1)
             {
@@ -220,7 +229,7 @@ public class Board : MonoBehaviour
                         }
                     }
                 }
-                
+
             }
             else
             {
@@ -258,12 +267,12 @@ public class Board : MonoBehaviour
     }
 
 
-    private void DistroyMatchesAt(int column,int row) //detruire les matchs à une position donnée
+    private void DistroyMatchesAt(int column, int row) //detruire les matchs à une position donnée
     {
         if (allDots[column, row].GetComponent<Dot>().isMatched)
         {
             //Vérifier combien de pièces construisant le match
-            if(findMatches.currentMatches.Count >=4)
+            if (findMatches.currentMatches.Count >= 4)
             {
                 CheckToMakeBombs();
             }
@@ -278,12 +287,19 @@ public class Board : MonoBehaviour
                 }
             }
 
+            //si le soundManager existe
+            if(soundManager != null)
+            {
+                soundManager.PlayRandomDestroyNoise();
+            }
+
             //créer animation de destruction
-            GameObject particle=Instantiate(destroyEffect, allDots[column, row].transform.position, Quaternion.identity);
+            GameObject particle = Instantiate(destroyEffect, allDots[column, row].transform.position, Quaternion.identity);
 
             //détruire l'objet après un certain temps pour ne pas occuper de la mémoire
             Destroy(particle, .5f);
             Destroy(allDots[column, row]);
+            scoreManager.IncreaseScore(basePieceValue * streakValue);//quand on a un match, le joueur gagne en score
             allDots[column, row] = null;
         }
 
@@ -292,8 +308,8 @@ public class Board : MonoBehaviour
     //vérifier chaque pièce du tableau, pour savoir si elle doit ou non être détruite 
     public void DistroyMatches()
     {
-        for(int i = 0; i < width; i++)
-            for(int j=0;j<height; j++)
+        for (int i = 0; i < width; i++)
+            for (int j = 0; j < height; j++)
             {
                 if (allDots[i, j] != null)
                 {
@@ -302,7 +318,7 @@ public class Board : MonoBehaviour
             }
         findMatches.currentMatches.Clear();
         StartCoroutine(DecreaseRowCo2()); // après avoir dtruit les pièces du match, on fait les pièces restantes descendre
-        
+
     }
     //faire descendre les pièces quand il y a des matchs
     //tenant compte des éspaces libres
@@ -332,7 +348,7 @@ public class Board : MonoBehaviour
 
             }
         }
-        yield return new WaitForSeconds(.4f);
+        yield return new WaitForSeconds(refillDelay * 0.5f);
         StartCoroutine(FillBoardCo());
     }
 
@@ -353,7 +369,7 @@ public class Board : MonoBehaviour
             }
             nullCount = 0;
         }
-        yield return new WaitForSeconds(.4f); //durée de la descente des pièces
+        yield return new WaitForSeconds(refillDelay * 0.5f); //durée de la descente des pièces
         StartCoroutine(FillBoardCo());
     }
 
@@ -361,15 +377,22 @@ public class Board : MonoBehaviour
 
 
 
-    private void RefillBoard() 
+    private void RefillBoard()
     {
         for (int i = 0; i < width; i++)
             for (int j = 0; j < height; j++)
             {
-                if (allDots[i, j] == null && !blankSpaces[i,j])
+                if (allDots[i, j] == null && !blankSpaces[i, j])
                 {
                     Vector2 tempPosition = new Vector2(i, j + offset);
                     int dotToUse = Random.Range(0, dots.Length);
+                    int maxIteration = 0;
+                    while (MatchesAt(i, j, dots[dotToUse]) && maxIteration<100)
+                    {
+                        maxIteration++;
+                        dotToUse = Random.Range(0, dots.Length);
+                    }
+                    maxIteration = 0;
                     //créer une nouvelle pièce sur la place vide
                     GameObject piece = Instantiate(dots[dotToUse], tempPosition, Quaternion.identity);
                     allDots[i, j] = piece;
@@ -394,16 +417,19 @@ public class Board : MonoBehaviour
     private IEnumerator FillBoardCo() //remplir le tableau, après avoir detruir les piéces créant des matchs
     {
         RefillBoard();
-        yield return new WaitForSeconds(.5f); //temps de remplissage du tableau 
+        yield return new WaitForSeconds(refillDelay); //temps de remplissage du tableau 
 
-        while(MatchesOnBoard()) // tant qu'on trouve des matchs après le remplissage
+        while (MatchesOnBoard()) // tant qu'on trouve des matchs après le remplissage
         {
-            yield return new WaitForSeconds(.5f);
+            //on incrémente le nombre de match
+            streakValue += 1;
             DistroyMatches(); //on élimine les piéces qui créent  des nouveaux matchs 
+            yield return new WaitForSeconds(2 * refillDelay);
+           
         }
         findMatches.currentMatches.Clear();
         currentDot = null;
-        yield return new WaitForSeconds(.5f);
+        yield return new WaitForSeconds(refillDelay);
 
         if (IsDeadlocked())
         {
@@ -411,12 +437,14 @@ public class Board : MonoBehaviour
             ShuffleBoard();
         }
         currentState = GameState.move;
+        //reset du streakValue après le move 
+        streakValue = 1;
     }
 
     private void SwitchPieces(int column, int row, Vector2 direction)
     {
         //retenir la deuxième pièce 
-        GameObject holder = allDots[column + (int)direction.x, row+ (int)direction.y] as GameObject;
+        GameObject holder = allDots[column + (int)direction.x, row + (int)direction.y] as GameObject;
         //échanger la premièere et la deuxième pièce
         allDots[column + (int)direction.x, row + (int)direction.y] = allDots[column, row];
         allDots[column, row] = holder;
@@ -432,7 +460,7 @@ public class Board : MonoBehaviour
                 if (allDots[i, j] != null)
                 {
                     //vérifier si on ne sort pas par la droite du tableau
-                    if (i < width- 2 )
+                    if (i < width - 2)
                     {
                         //vérifier s'il existe un match à droit
                         if (allDots[i + 1, j] != null && allDots[i + 2, j] != null)
@@ -464,7 +492,7 @@ public class Board : MonoBehaviour
         return false;
     }
 
-    private bool SwitchAndCheck(int column, int row, Vector2 direction)
+    public bool SwitchAndCheck(int column, int row, Vector2 direction)
     {
         SwitchPieces(column, row, direction);
         if (CheckForMatches())
@@ -488,7 +516,7 @@ public class Board : MonoBehaviour
                     //vérifier si on peut aller à droite sans sortir du tableau
                     if (i < width - 1)
                     {
-                        if(SwitchAndCheck(i, j, Vector2.right)) //si o trouve des matches
+                        if (SwitchAndCheck(i, j, Vector2.right)) //si o trouve des matches
                         {
                             return false; // le tableau n'est pas bloqué
                         }
@@ -504,7 +532,7 @@ public class Board : MonoBehaviour
                 }
             }
         }
-                return true;
+        return true;
     }
 
     //mélanger les pièces en cs de blocage
@@ -512,9 +540,9 @@ public class Board : MonoBehaviour
     {
         //mettre toutes les pièces dans une nouvelle liste
         List<GameObject> newBoard = new List<GameObject>();
-        for(int i = 0; i < width; i++)
+        for (int i = 0; i < width; i++)
         {
-            for(int j = 0; j < height; j++)
+            for (int j = 0; j < height; j++)
             {
                 if (allDots[i, j] != null)
                 {
@@ -533,10 +561,10 @@ public class Board : MonoBehaviour
                 {
                     //Choisir une pièce de la liste au hazard 
                     int pieceToUse = Random.Range(0, newBoard.Count);
-                    
+
 
                     int maxIterations = 0; //pour éviter une boucle infinite
-                    while (MatchesAt(i, j, newBoard[pieceToUse]) && maxIterations < 100) 
+                    while (MatchesAt(i, j, newBoard[pieceToUse]) && maxIterations < 100)
                     {
                         pieceToUse = Random.Range(0, newBoard.Count);
                         maxIterations++;
