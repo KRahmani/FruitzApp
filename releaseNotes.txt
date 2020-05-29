@@ -1,0 +1,65 @@
+Notre projet s'agit de créer un jeu ressemblant à CandyCrash.
+
+Description du jeu : 
+
+Notre jeu reprend les princiales caractéristiques de candy crash.
+En effet, il s'agit d'un tableau (board) contenant diffétents types de fruits/bonbons.
+Le joueur doit essayer d'aligner horizontalement ou verticalement 3 (ou plus) fruits/bonbons du même type.
+Chaque pièce a une valeur donc si le joeur réalise un alignement de 3 pièces identiques il gagne valeur de pièce * nombre de pièces allignées.
+Par exemple s'il réalise un math de 3 pièce et que la valeur initiale de la pièce est 20, son score sera augmenté de 60 (20 * 3).
+Lorsqu'un alignement est réussi, les pièces en questions disparaissent, un décalage des pièces s'effectue au sein du tableau (board) afin de remplir
+les places occupées par les anciennes pièces, puis des nouvelles pièces seront ajouté pour remplir les pièces manquantes du tableau. 
+
+Lien utilisé pour comprendre les différents candy et le comportement qu'ils doivents générer:
+https://candycrush.fandom.com/wiki/Candies
+
+Les techniques et algorithmes :
+
+Pour la logique du jeu, nous avons suivi ce tutoriel : https://gamedevelopertips.com/how-to-create-a-candy-crush-in-unity/, il explique 
+bien le grid (board) et les alignements possibles avec des schémas...
+
+Les principaux algos du jeu : 
+==> l'algorithme de détection de Matchs (alignement) : Pour ce faire, on a utilisé la technique des coroutines qui ont l'avantage de ne s'exécuter que 
+lorsque l'instruction Yield est finie, dans le cas contraire elle suspend son exécution.
+Pour trouver un match, on parcoure toutes les pièces tu tableau en vérifiant si des matchs existent horizontalement et verticalement.
+1) Horizontalement : 
+on vérifie s'il y a des pièces à gauche et à droite de la pièce courante, si c'est le cas on vérifie si elles sont les mêmes avec la pièce courante
+(en comparant leurs tags), puis on teste s'il y a une bombe (en utilisant les quaternion)
+2) Verticalement: 
+on vérifie s'il y a des pièces en haut et en bas de la pièce courante, si c'est le cas on vérifie si elles sont les mêmes avec la pièce courante
+(en comparant leurs tags), puis on teste s'il y a une bombe (en utilisant les quaternion) si c'est le cas on ajoute à la liste des Maths
+
+==>Création de bombes
+Nous avons utilisé les quaternions pour créer les bombes (une pièce spécial qui peut être matcher avec n'importe quelle 
+pièce: 
+on peut avoir une bombe sur une ligne, sur une coleur ou sur une colonne
+==>Vérification de quelle type de bombe on doit créer
+Pour celà nous avons utilisé l'angle de déplacement:
+si cet angle est entre -45 et 45 ou inférieur à -135 ou supérieur à 135 : on génère une bombe sur la ligne sinon on génère une bombe sur la colonne
+
+https://candycrush.fandom.com/wiki/Colour_Bomb_(special_candy)
+
+
+Quant au développement, nous avons développé nos propres outils, nous avons d'ailleurs
+pas du tout utilisé les bibliothèques ou les assets du marché
+
+
+Limitations et évolutions possibles :
+Pour l'instant, le jeu est basique, plusieurs améliorations peuvent être effectuées notamment :
+Ajout de message selon le score atteint (Sweet, tasty, delicious ...) 
+Amélioration de l'interface
+Ajout des niveau de jeu. 
+
+
+
+Origine des assets : 
+En ce qui concerne les images, nous avons trouvé sur internet en cherchant Candy Crash Saga images, elles sont gratuites.
+Pour les sounds et musique, nous avons utilisé ces lien qui contiennt différents audios à télécharger gratuitement:
+https://downloads.khinsider.com/game-soundtracks/album/candy-crush-saga-gamerip
+https://www.dl-sounds.com/royalty-free/patakas-world/
+
+Autres liens utilisés pendant le développement :
+https://answers.unity.com/questions/532698/how-to-develop-a-candy-crush-type-of-game.html
+
+
+
