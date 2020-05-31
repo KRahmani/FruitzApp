@@ -13,8 +13,8 @@ GameObject:
   - component: {fileID: 58297821808731276}
   - component: {fileID: 114791952139037290}
   m_Layer: 0
-  m_Name: Salmon Dot
-  m_TagString: Salmon Dot
+  m_Name: banana
+  m_TagString: banana
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

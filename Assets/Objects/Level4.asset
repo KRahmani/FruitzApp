@@ -1,0 +1,73 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8925bef4a6abaf246b79f975541b8d05, type: 3}
+  m_Name: Level4
+  m_EditorClassIdentifier: 
+  width: 7
+  height: 8
+  boadLayout:
+  - x: 5
+    y: 5
+    tileKind: 0
+  - x: 3
+    y: 2
+    tileKind: 0
+  - x: 6
+    y: 7
+    tileKind: 0
+  - x: 2
+    y: 0
+    tileKind: 0
+  - x: 1
+    y: 6
+    tileKind: 0
+  - x: 0
+    y: 4
+    tileKind: 0
+  - x: 5
+    y: 0
+    tileKind: 0
+  - x: 2
+    y: 5
+    tileKind: 0
+  - x: 1
+    y: 2
+    tileKind: 0
+  - x: 4
+    y: 4
+    tileKind: 0
+  fruits:
+  - {fileID: 1886600490702098, guid: 28a0ed689e40444bf86965998f5f1e1a, type: 3}
+  - {fileID: 1370519727947204, guid: 3e5400e8fc24b4814b35c2404bea18b6, type: 3}
+  - {fileID: 1987821457856374, guid: fcf3445ef5a3748b4b2a5f2eeff8a7e1, type: 3}
+  - {fileID: 1954689237764068, guid: bc3c53142e6b44bab81c765f6ba5b2e8, type: 3}
+  - {fileID: 1364587841334750, guid: f8bd37a7d383940dbbc740c1a5e917b3, type: 3}
+  - {fileID: 1032542754878642, guid: 68f0f34c7c6894c5489e9ed80463f5d1, type: 3}
+  - {fileID: 1223371761558328, guid: 6f67e2d9c76474888bca2643873cd298, type: 3}
+  - {fileID: 1200374735526922, guid: 3849a778f96364aa5977e89b41f1b22a, type: 3}
+  scoreGoals: e8030000d0070000b80b0000
+  endGameRequirements:
+    gameType: 0
+    counterValue: 30
+  levelGoals:
+  - numberNeeded: 10
+    goalSprite: {fileID: 21300000, guid: e24916e999aab4ebebb588475e1dda99, type: 3}
+    matchValue: ice
+    numberCollected: 2
+  - numberNeeded: 20
+    goalSprite: {fileID: 21300000, guid: 30517234ffe5107489d881b53f6d78b2, type: 3}
+    matchValue: kiwi
+    numberCollected: 3
+  - numberNeeded: 30
+    goalSprite: {fileID: 21300000, guid: 7aa3fd54a86060043abbca893cfd7460, type: 3}
+    matchValue: cherry
+    numberCollected: 3

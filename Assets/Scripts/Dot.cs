@@ -15,6 +15,7 @@ public class Dot : MonoBehaviour
 
     private HintManager hintManager;
     private FindMatches findMatches;
+    private EndGameManager endGameManager;
     private Vector2 firstTouchPosition;
     private Vector2 finalTouchPosition;
     private Vector2 tempPosition;
@@ -45,6 +46,7 @@ public class Dot : MonoBehaviour
         isAdjacentBomb = false;
 
         hintManager = FindObjectOfType<HintManager>();
+        endGameManager = FindObjectOfType<EndGameManager>();
         board = FindObjectOfType<Board>();
         findMatches = FindObjectOfType<FindMatches>();
         //targetX = (int)transform.position.x;
@@ -150,6 +152,15 @@ public class Dot : MonoBehaviour
             }
             else
             {
+                if (endGameManager != null)
+                {
+                    //vérifier si la condition d'arret du jeu est le nb de mouvements ou le temps
+                    if (endGameManager.requirements.gameType == GameType.Moves)
+                    {
+                        endGameManager.DecreaseCounterValue();
+                    }
+
+                }
                 board.DistroyMatches();
 
             }

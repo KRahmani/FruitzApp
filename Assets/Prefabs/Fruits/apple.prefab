@@ -13,8 +13,8 @@ GameObject:
   - component: {fileID: 58736203682458568}
   - component: {fileID: 114726378684682946}
   m_Layer: 0
-  m_Name: Teal Dot
-  m_TagString: Teal Dot
+  m_Name: apple
+  m_TagString: apple
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

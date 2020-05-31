@@ -25,9 +25,20 @@ public class FadePanelController : MonoBehaviour
         {
             panelAnim.SetBool("Out", true);
             gameInfoAnim.SetBool("Out", true);
+            StartCoroutine(GameStartCo());
 
         }
 
 
+    }
+
+
+    //attendre une séconde après avoir apuuyé sur le bouton "OK"
+    //avant de mettre l'état de jeu=move;
+    IEnumerator GameStartCo()
+    {
+        yield return new WaitForSeconds(1f);
+        Board board = FindObjectOfType<Board>();
+        board.currentState = GameState.move;
     }
 }

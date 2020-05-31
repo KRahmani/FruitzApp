@@ -13,8 +13,8 @@ GameObject:
   - component: {fileID: 58349058011101760}
   - component: {fileID: 114720634326128820}
   m_Layer: 0
-  m_Name: Green Dot
-  m_TagString: Green Dot
+  m_Name: watermelon
+  m_TagString: watermelon
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

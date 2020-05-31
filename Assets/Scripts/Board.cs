@@ -5,7 +5,10 @@ using UnityEngine;
 public enum GameState
 {
     wait,
-    move
+    move,
+    win,
+    lose,
+    pause
 }
 //utilisé pour le type de pièces
 //pour remplir le tableau
@@ -37,6 +40,9 @@ public class Board : MonoBehaviour
     public GameObject destroyEffect;
     public TileType[] boardLayout;
 
+    public World world;
+    public int level;
+
     private bool[,] blankSpaces;
     private BackgroundTile[,] breakableTiles;
     public GameObject[,] allDots;
@@ -44,20 +50,53 @@ public class Board : MonoBehaviour
     private FindMatches findMatches;
     public int basePieceValue = 20;
     public int streakValue = 1;
+
     private ScoreManager scoreManager;
     private SoundManager soundManager;
+    private GoalManager goalManager;
+
     public float refillDelay = 0.5f;
     public int[] scoreGoals;
 
+
+    public void Awake()
+    {
+        
+        if (world != null)
+        {
+            if (level < world.levels.Length)
+            {
+                if (world.levels[level] != null)
+                {
+                    //ajuster le jeu en fonction du niveau
+                    width = world.levels[level].width;
+                    height = world.levels[level].height;
+                    fruits = world.levels[level].fruits;
+                    scoreGoals = world.levels[level].scoreGoals;
+                    boardLayout = world.levels[level].boadLayout;
+
+
+                }
+            }
+
+        }
+    }
+
     void Start()
     {
+        goalManager = FindObjectOfType<GoalManager>();
         soundManager = FindObjectOfType<SoundManager>();
         scoreManager = FindObjectOfType<ScoreManager>();
         breakableTiles = new BackgroundTile[width, height];
         findMatches = FindObjectOfType<FindMatches>();
         blankSpaces = new bool[width, height];
         allDots = new GameObject[width, height];
+
+        //on met le jeu sur pause au début pour que le temps ne s'écoule pas quand le paneau est affiché
+        currentState = GameState.pause; 
+
         SetUp();
+        
     }
 
     //pour stocker toutes les positions où il doit y avoir de l'éspace libre
@@ -285,6 +324,12 @@ public class Board : MonoBehaviour
                 {
                     breakableTiles[column, row] = null;
                 }
+            }
+
+            if (goalManager != null)
+            {
+                goalManager.CompareGoal(allDots[column, row].tag.ToString());
+                goalManager.UpdateGoals();
             }
 
             //si le soundManager existe

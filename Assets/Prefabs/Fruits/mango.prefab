@@ -13,8 +13,8 @@ GameObject:
   - component: {fileID: 58097601374741756}
   - component: {fileID: 114101236258395636}
   m_Layer: 0
-  m_Name: Yellow Dot
-  m_TagString: Yellow Dot
+  m_Name: mango
+  m_TagString: mango
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
