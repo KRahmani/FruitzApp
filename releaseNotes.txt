@@ -53,8 +53,14 @@ Ajout des niveau de jeu.
 
 
 Origine des assets : 
-En ce qui concerne les images, nous avons trouvé sur internet en cherchant Candy Crash Saga images, elles sont gratuites.
+Les fruits:
+https://www.flaticon.com/free-icons/fruits
+
+Le backgroud:
+http://7-themes.com/data_images/out/74/7024175-clip-art-design-wallpapers-background.jpg
+
 Pour les sounds et musique, nous avons utilisé ces lien qui contiennt différents audios à télécharger gratuitement:
+https://www.dl-sounds.com/royalty-free/african-safari-loop/
 https://downloads.khinsider.com/game-soundtracks/album/candy-crush-saga-gamerip
 https://www.dl-sounds.com/royalty-free/patakas-world/
 

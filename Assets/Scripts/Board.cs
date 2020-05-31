@@ -33,7 +33,7 @@ public class Board : MonoBehaviour
     public int offset;//sert à avoir un effet glissant lorsque les fruits tombent
     public GameObject tilePrefab;
     public GameObject breakableTilePrefab;
-    public GameObject[] dots;
+    public GameObject[] fruits;
     public GameObject destroyEffect;
     public TileType[] boardLayout;
 
@@ -105,18 +105,18 @@ public class Board : MonoBehaviour
                     GameObject backgroundTile = Instantiate(tilePrefab, tilePosition, Quaternion.identity) as GameObject;
                     backgroundTile.transform.parent = this.transform;
                     backgroundTile.name = "( " + i + ", " + j + " )";
-                    int dotToUse = Random.Range(0, dots.Length);
+                    int dotToUse = Random.Range(0, fruits.Length);
 
                     int maxIterations = 0; //pour éviter une boucle infinite
-                    while (MatchesAt(i, j, dots[dotToUse]) && maxIterations < 100) //pour éviter d'avoir des matchs quand on commence le jeu
+                    while (MatchesAt(i, j, fruits[dotToUse]) && maxIterations < 100) //pour éviter d'avoir des matchs quand on commence le jeu
                     {
-                        dotToUse = Random.Range(0, dots.Length);
+                        dotToUse = Random.Range(0, fruits.Length);
                         maxIterations++;
                         Debug.Log(maxIterations);
                     }
                     maxIterations = 0;
 
-                    GameObject dot = Instantiate(dots[dotToUse], tempPosition, Quaternion.identity);
+                    GameObject dot = Instantiate(fruits[dotToUse], tempPosition, Quaternion.identity);
                     dot.GetComponent<Dot>().row = j;
                     dot.GetComponent<Dot>().column = i;
                     dot.transform.parent = this.transform;
@@ -369,7 +369,7 @@ public class Board : MonoBehaviour
             }
             nullCount = 0;
         }
-        yield return new WaitForSeconds(refillDelay * 0.5f); //durée de la descente des pièces
+        yield return new WaitForSeconds(refillDelay * 0.5f); 
         StartCoroutine(FillBoardCo());
     }
 
@@ -385,16 +385,16 @@ public class Board : MonoBehaviour
                 if (allDots[i, j] == null && !blankSpaces[i, j])
                 {
                     Vector2 tempPosition = new Vector2(i, j + offset);
-                    int dotToUse = Random.Range(0, dots.Length);
+                    int dotToUse = Random.Range(0, fruits.Length);
                     int maxIteration = 0;
-                    while (MatchesAt(i, j, dots[dotToUse]) && maxIteration<100)
+                    while (MatchesAt(i, j, fruits[dotToUse]) && maxIteration<100)
                     {
                         maxIteration++;
-                        dotToUse = Random.Range(0, dots.Length);
+                        dotToUse = Random.Range(0, fruits.Length);
                     }
                     maxIteration = 0;
                     //créer une nouvelle pièce sur la place vide
-                    GameObject piece = Instantiate(dots[dotToUse], tempPosition, Quaternion.identity);
+                    GameObject piece = Instantiate(fruits[dotToUse], tempPosition, Quaternion.identity);
                     allDots[i, j] = piece;
                     piece.GetComponent<Dot>().row = j;
                     piece.GetComponent<Dot>().column = i;
